@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  consul:
+    image: consul:0.7.1
+    ports:
+      - "8500:8500"
+
+  vault:
+    image: vault:0.6.1
+    depends_on:
+      - consul
+
+    volumes:
+      - ./vault.hcl:/tmp/vault.hcl
+    command: |
+      vault server -dev -config=/tmp/vault.hcl
+    restart: always
+    ports:
+      - "8250:8250"
+    environment:
+      VAULT_ROOT_TOKEN: 3f7ebe24-2b72-9cfd-ccbf-5881242d8281
+
+  busybox:
+    image: yikaus/alpine-bash
+    command: /bin/bash
+    depends_on:
+      - consul
+      - vault
